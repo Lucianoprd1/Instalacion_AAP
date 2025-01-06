@@ -4,7 +4,7 @@
   connection: local
   become: true
   vars:
-    python_interpreter: /usr/bin/python3.9
+    ansible_python_interpreter: /usr/bin/python3.9
   pre_tasks:
     - name: Verificar si el modulo 'dnf' está disponible en python
       ansible.builtin.pip:
