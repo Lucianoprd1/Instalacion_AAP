@@ -1,7 +1,29 @@
 ---
 - name: Verificar Instalación de Ansible Automation Platform (AAP)
-  hosts: all
+  hosts: localhost
+  connection: local
   become: true
+  vars:
+    python_interpreter: /usr/bin/python3.9
+  pre_tasks:
+    - name: Verificar si el modulo 'dnf' está disponible en python
+      ansible.builtin.pip:
+        name: dnf
+        state: present
+      check_mode: true
+      register: dnf_check
+      ignore_errors: true
+    - name: Instalar 'python3-dnf' si el modulo 'dnf' no está disponible
+      ansible.builtin.package:
+        name: python3-dnf
+        state: present
+      when: dnf_check.failed
+      notify: restart ansible
+    - name: Esperar unos segundos después de la instalación de 'python3-dnf'
+      ansible.builtin.pause:
+        seconds: 2
+      when: dnf_check.failed
+
   tasks:
 
     - name: Verificar que el paquete 'ansible-tower' está instalado
