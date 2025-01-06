@@ -1,0 +1,76 @@
+---
+- name: Verificar Instalación de Ansible Automation Platform (AAP)
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Verificar que el paquete 'ansible-tower' está instalado
+      ansible.builtin.package:
+        name: ansible-tower
+        state: present
+      register: package_status
+
+    - name: Notificar si el paquete 'ansible-tower' no está instalado
+      ansible.builtin.fail:
+        msg: "El paquete 'ansible-tower' no está instalado."
+      when: package_status is failed
+
+    - name: Verificar que el servicio 'ansible-tower' está activo y habilitado
+      ansible.builtin.service:
+        name: ansible-tower
+        state: started
+        enabled: true
+      register: service_status
+
+    - name: Notificar si el servicio 'ansible-tower' no está activo
+      ansible.builtin.fail:
+        msg: "El servicio 'ansible-tower' no está activo o no está habilitado para iniciarse al arranque."
+      when: service_status is failed
+
+    - name: Comprobar que el puerto 443 está escuchando (HTTPS)
+      ansible.builtin.wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 443
+        state: started
+        timeout: 10
+      register: port_status
+
+    - name: Notificar si el puerto 443 no está escuchando
+      ansible.builtin.fail:
+        msg: "El puerto 443 no está escuchando. AAP podría no estar funcionando correctamente."
+      when: port_status is failed
+
+    - name: Validar archivo de configuración principal
+      ansible.builtin.stat:
+        path: /etc/tower/conf.d/aap.conf
+      register: config_file
+
+    - name: Notificar si el archivo de configuración no existe
+      ansible.builtin.fail:
+        msg: "El archivo de configuración '/etc/tower/conf.d/aap.conf' no existe."
+      when: not config_file.stat.exists
+
+    - name: Verificar contenido clave en el archivo de configuración
+      ansible.builtin.slurp:
+        src: /etc/tower/conf.d/aap.conf
+      register: config_content
+
+    - name: Decodificar contenido del archivo de configuración
+      ansible.builtin.set_fact:
+        config_decoded: "{{ config_content.content | b64decode }}"
+
+    - name: Comprobar que 'SECRET_KEY' está configurado
+      ansible.builtin.assert:
+        that:
+          - "'SECRET_KEY' in config_decoded"
+        fail_msg: "La 'SECRET_KEY' no está configurada en el archivo de configuración."
+
+    - name: Comprobar que la base de datos está configurada correctamente
+      ansible.builtin.assert:
+        that:
+          - "'DATABASES' in config_decoded"
+        fail_msg: "La configuración de la base de datos no está presente en el archivo de configuración."
+
+    - name: Informar que todas las verificaciones han sido exitosas
+      ansible.builtin.debug:
+        msg: "AAP está instalado y configurado correctamente"
