@@ -1,6 +1,7 @@
 ---
 - name: Verificar intérprete de Python
   hosts: localhost
+  connection: local
   tasks:
     - name: Mostrar intérprete de Python
       ansible.builtin.debug:
