@@ -1,0 +1,7 @@
+---
+- name: Verificar intérprete de Python
+  hosts: localhost
+  tasks:
+    - name: Mostrar intérprete de Python
+      ansible.builtin.debug:
+        msg: "El intérprete de Python es {{ ansible_python_interpreter }}"
