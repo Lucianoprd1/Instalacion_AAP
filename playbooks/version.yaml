@@ -2,6 +2,9 @@
 - name: Testear versión de workflow
   hosts: localhost
   tasks:
+    - name: Obtener el job ID actual
+      ansible.builtin.set_fact:
+        current_job_id: "{{ lookup('env', 'TOWER_JOB_ID') }}"
     - name: Mostrar id workflow
       ansible.builtin.debug:
-        msg: "Ansible se esta ejecutando en el id {{workflow_job_id}}"
+        msg: "Ansible se esta ejecutando en el id {{current_job_id}}"
