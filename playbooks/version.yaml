@@ -4,7 +4,7 @@
   tasks:
     - name: Obtener metadatos del controller
       awx.awx.controller_meta:
-        register: controller_metadata
+      register: controller_metadata
 
     - name: Mostrar ID del workflow
       debug:
