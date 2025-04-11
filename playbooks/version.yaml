@@ -1,0 +1,7 @@
+---
+- name: Testear versión de workflow
+  hosts: localhost
+  tasks:
+    - name: Mostrar id workflow
+      ansible.builtin.debug:
+        msg: "Ansible se esta ejecutando en el id {{workflow_job_id}}"
