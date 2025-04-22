@@ -1,15 +1,8 @@
 ---
-- name: Testear versión de workflow
+- name: Imprimir URL del workflow en ejecución
   hosts: localhost
+  gather_facts: false
   tasks:
-    - name: Obtener metadatos del controller
-      awx.awx.controller_meta:
-      register: controller_metadata
-
-    - name: Mostrar  controller
+    - name: Mostrar URL del workflow actual
       ansible.builtin.debug:
-        msg: "controller es {{ controller_metadata }}"
-
-    - name: Mostrar ID del workflow
-      ansible.builtin.debug:
-        msg: "Job finalizado exitosamente en el workflow con id {{ workflow_url}}"
+        msg: "URL del workflow en ejecución: {{ lookup('env', 'TOWER_URL') }}//#/workflows/{{ lookup('env', 'TOWER_WORKFLOW_JOB_ID') }}"
