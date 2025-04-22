@@ -4,5 +4,11 @@
   gather_facts: false
   tasks:
     - name: Mostrar URL del workflow actual
-      ansible.builtin.debug:
-        msg: "URL del workflow en ejecución: {{ lookup('env', 'TOWER_URL') }}//#/workflows/{{ lookup('env', 'TOWER_WORKFLOW_JOB_ID') }}"
+      debug:
+        msg: "URL del workflow en ejecución: {{ workflow_url }}"
+      when: workflow_url is defined
+
+    - name: Mostrar mensaje si no hay URL disponible
+      debug:
+        msg: "No se encontró la variable workflow_url"
+      when: workflow_url is not defined
