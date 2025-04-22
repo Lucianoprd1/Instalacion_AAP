@@ -6,6 +6,10 @@
       awx.awx.controller_meta:
       register: controller_metadata
 
+    - name: Mostrar  controller
+      ansible.builtin.debug:
+        msg: "controller es {{ controller_metadata }}"
+
     - name: Mostrar ID del workflow
-      debug:
-        msg: "Job finalizado exitosamente en el workflow con id {{ controller_metadata.workflow_job_id }}"
+      ansible.builtin.debug:
+        msg: "Job finalizado exitosamente en el workflow con id {{ workflow_url}}"
