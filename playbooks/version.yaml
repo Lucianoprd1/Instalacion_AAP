@@ -1,14 +1,22 @@
 ---
-- name: Imprimir URL del workflow en ejecución
+- name: Imprimir URL del workflow en ejecución en AAP 2.4
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Mostrar URL del workflow actual
+    - name: Mostrar variables disponibles de AWX/AAP
       debug:
-        msg: "URL del workflow en ejecución: {{ workflow_url }}"
-      when: workflow_url is defined
+        msg: |
+          awx_job_id: {{ awx_job_id | default('No disponible') }}
+          awx_job_template_name: {{ awx_job_template_name | default('No disponible') }}
+          awx_workflow_job_id: {{ awx_workflow_job_id | default('No disponible') }}
+          awx_workflow_job_name: {{ awx_workflow_job_name | default('No disponible') }}
 
-    - name: Mostrar mensaje si no hay URL disponible
+    - name: Construir URL del workflow
+      set_fact:
+        constructed_workflow_url: "{{ lookup('env', 'TOWER_HOST') | default(lookup('env', 'TOWER_URL')) }}/#/workflows/{{ awx_workflow_job_id }}"
+      when: awx_workflow_job_id is defined and awx_workflow_job_id != 'No disponible'
+
+    - name: Mostrar URL construida del workflow
       debug:
-        msg: "No se encontró la variable workflow_url"
-      when: workflow_url is not defined
+        msg: "URL del workflow en ejecución: {{ constructed_workflow_url }}"
+      when: constructed_workflow_url is defined
